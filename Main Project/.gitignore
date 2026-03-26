@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+ENV/
+
+# Local env/secrets
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flask
+instance/
+
+# QR outputs (optional to keep; comment out if you want tracked)
+Main Project/static/qr_codes/

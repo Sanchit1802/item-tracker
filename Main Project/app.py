@@ -2,16 +2,33 @@ from flask import Flask, render_template, request, redirect
 import mysql.connector
 from datetime import datetime
 from qrcodegenerator import generate_qr_code
+from dotenv import load_dotenv
+import os
+import logging
+
+load_dotenv()
 
 app = Flask(__name__)
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 def connect():
     return mysql.connector.connect(
-        host="127.0.0.1",
-        user="root",
-        password="Sanchit@18",
-        database="main"
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME")
     )
+
+def get_base_url():
+    """Get the base URL from environment or construct it from request"""
+    base_url = os.getenv("BASE_URL")
+    if base_url:
+        return base_url.rstrip("/")
+    # Fallback to request host
+    return f"http://{request.host}"
 
 @app.route('/')
 def home():
@@ -45,7 +62,8 @@ def update():
     conn.commit()
     cursor.close()
     conn.close()
-    return redirect(f"http://localhost:5000/components?compid={component_id}")
+    base_url = get_base_url()
+    return redirect(f"{base_url}/components?compid={component_id}")
 
 @app.route('/components', methods=['GET'])
 def components():
@@ -98,7 +116,7 @@ def add_component():
         try:
             generate_qr_code(component_id)
         except Exception as qr_error:
-            print(f"Error generating QR code: {qr_error}")
+            logger.error(f"Error generating QR code: {qr_error}")
             # Continue even if QR generation fails
 
         return redirect(f"/?success=Component {component_id} added successfully")
@@ -132,4 +150,6 @@ def record():
     return render_template('home.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Don't use debug mode in production
+    debug_mode = os.getenv("FLASK_DEBUG", "False").lower() == "true"
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=debug_mode)

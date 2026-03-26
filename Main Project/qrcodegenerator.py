@@ -1,7 +1,6 @@
 import qrcode
 import os
 import mysql.connector
-
 try:
     import boto3
 except Exception:  # pragma: no cover
@@ -9,11 +8,10 @@ except Exception:  # pragma: no cover
 
 def connect():
     return mysql.connector.connect(
-        host=os.getenv("DB_HOST", "127.0.0.1"),
-        user=os.getenv("DB_USER", "root"),
-        password=os.getenv("DB_PASSWORD", ""),
-        database=os.getenv("DB_NAME", "main"),
-        port=int(os.getenv("DB_PORT", "3306")),
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME")
     )
 
 
