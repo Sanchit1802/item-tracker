@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Continental</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body>
+    <div class="header">
+      <img
+        class="logo"
+        src="{{ url_for('static', filename='images/logo.png') }}"
+        alt="Continental Logo"
+      />
+      <h1 class="header-title">
+        Component based tracking system
+      </h1>
+      <div class="nav-links">
+        <a id="search-link" onclick="showSection('search')">Search Component</a>
+        <a id="add-link" onclick="showSection('add')">Add New Component</a>
+      </div>
+    </div>
+    <div class="subheader">
+      <h2 id="page-title">Component based tracking system</h2>
+    </div>
+
+    <!-- Success Message -->
+    {% if success_msg %}
+    <div class="success-message-banner">
+      <strong>Success:</strong> {{ success_msg }}
+    </div>
+    {% endif %}
+
+    <!-- Error Message -->
+    {% if error_msg %}
+    <div class="error-message-banner">
+      <strong>Error:</strong> {{ error_msg }}
+    </div>
+    {% endif %}
+
+    <!-- Search Component Section -->
+    <div id="search-section" class="floating-container">
+      <!-- Left: search form -->
+      <div class="form-section">
+        <form action="/record" method="GET">
+          <h3>Enter the component ID:</h3>
+          <input class="input-box" type="text" name="compid" required />
+          <button class="submit-button" type="submit">Submit</button>
+        </form>
+
+        <!-- Error message if component not found -->
+        {% if error %}
+        <div class="error-message">
+          <strong>Error:</strong> Component ID "{{ compid }}" not found in the database.
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Right: QR code + navigate button (only shown if component exists) -->
+      {% if exists %}
+      <div class="qr-section">
+        <img
+          class="qr"
+          src="{{ qr_image_url }}"
+          alt="QR Code for {{ compid }}"
+        />
+        <a class="view-btn" href="/components?compid={{ compid }}">
+          &#128279; View Component Page
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Add New Component Section -->
+    <div id="add-section" class="floating-container" style="display: none; max-width: 600px;">
+      <div class="form-section" style="width: 100%;">
+        <h3>Add New Component</h3>
+        <form action="/add_component" method="POST">
+          <label for="compid"><strong>Component ID:</strong> <span style="color: red;">*</span></label>
+          <input class="input-box" type="text" id="compid" name="compid" required style="max-width: 100%;" />
+
+          <label for="compname"><strong>Component Name:</strong> <span style="color: red;">*</span></label>
+          <input class="input-box" type="text" id="compname" name="compname" required style="max-width: 100%;" />
+
+          <label for="location"><strong>Current Location:</strong> <span style="color: #666; font-size: 0.9rem;">(Optional)</span></label>
+          <select name="location" id="location" style="max-width: 100%;">
+            <option value="">Select Location</option>
+            <option>Raw Material Store</option>
+            <option>Machine Line 2</option>
+            <option>Finished Goods Store</option>
+          </select>
+
+          <label for="status"><strong>Status:</strong> <span style="color: #666; font-size: 0.9rem;">(Optional)</span></label>
+          <select name="status" id="status" style="max-width: 100%;">
+            <option value="">Select Status</option>
+            <option>Received</option>
+            <option>In Process</option>
+            <option>Ready for Dispatch</option>
+          </select>
+
+          <button type="submit" style="max-width: 100%;">Add Component</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      function showSection(section) {
+        const searchSection = document.getElementById('search-section');
+        const addSection = document.getElementById('add-section');
+        const searchLink = document.getElementById('search-link');
+        const addLink = document.getElementById('add-link');
+        const pageTitle = document.getElementById('page-title');
+
+        if (section === 'search') {
+          searchSection.style.display = 'flex';
+          addSection.style.display = 'none';
+          searchLink.style.color = 'rgb(46, 200, 102)';
+          addLink.style.color = 'white';
+          pageTitle.innerText = 'Search Component';
+        } else {
+          searchSection.style.display = 'none';
+          addSection.style.display = 'flex';
+          searchLink.style.color = 'white';
+          addLink.style.color = 'rgb(46, 200, 102)';
+          pageTitle.innerText = 'Add New Component';
+        }
+      }
+
+      // Set default active section
+      document.addEventListener('DOMContentLoaded', function() {
+        showSection('search');
+      });
+    </script>
+  </body>
+</html>

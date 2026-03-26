@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Continental</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body>
+    <div class="logo-container">
+      <img
+        class="logo"
+        src="{{ url_for('static', filename='images/logo.png') }}"
+        alt="Continental Logo"
+      />
+      <div class="nav-links">
+        <a id="ashow" onclick="showSection('show','ashow','Status of Component:{{compid}}')">Current Record</a>
+        <a id="ahistory" onclick="showSection('history','ahistory','Movement History of Component ID:{{compid}}')">History</a>
+        <a id="aupdate" onclick="showSection('update','aupdate','Update data of ID: {{compid}}')">Update</a>
+      </div>
+    </div>
+    <div class="subheader">
+      <h2 id="message">Component ID: {{ compid }}</h2>
+    </div>
+    <div id="show" class="hidden-section">
+      <h3><strong>Name:</strong> {{ data.component_name }}</h3>
+      <h3><strong>Location:</strong> {{ data.current_location }}</h3>
+      <h3><strong>Status:</strong> {{ data.status }}</h3>
+      <h3><strong>Last Updated:</strong> {{ data.last_updated }}</h3>
+    </div>
+
+    <div id="history" class="hidden-section" style="max-width: 700px; width: 90%;">
+      <table>
+        <thead>
+          <tr>
+            <th>S.No.</th>
+            <th>Timestamp</th>
+            <th>Status</th>
+            <th>Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in history %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ row.timestamp }}</td>
+            <td>{{ row.status }}</td>
+            <td>{{ row.location }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div id="update" class="hidden-section">
+      <form method="POST" action="/update">
+        <input type="hidden" name="compid" value="{{ compid }}" />
+
+        <label for="location"><strong>Select Location:</strong></label>
+        <select name="location" id="location" required>
+          <option value="">Select Location</option>
+          <option>Raw Material Store</option>
+          <option>Machine Line 2</option>
+          <option>Finished Goods Store</option>
+        </select>
+
+        <label for="status"><strong>Select Status:</strong></label>
+        <select name="status" id="status" required>
+          <option value="">Select Status</option>
+          <option>Received</option>
+          <option>In Process</option>
+          <option>Ready for Dispatch</option>
+        </select>
+
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+
+    <script>
+      function showSection(sectionId, linkId, text) {
+        const sections = ["show", "history", "update"];
+        const links = ["ashow", "ahistory", "aupdate"];
+        sections.forEach((id) => {
+          document.getElementById(id).style.display =
+            id === sectionId ? "block" : "none";
+        });
+        links.forEach((id) => {
+          document.getElementById(id).style.color =
+            id === linkId ? "rgb(46, 200, 102)" : "white";
+        });
+        document.getElementById("message").innerText = text;
+      }
+    </script>
+  </body>
+</html>
