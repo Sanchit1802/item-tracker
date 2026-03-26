@@ -1,25 +1,17 @@
-import os
-
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect
 import mysql.connector
 from datetime import datetime
 from qrcodegenerator import generate_qr_code
 
-app = Flask(__name__, template_folder="Templates")
+app = Flask(__name__)
 
 def connect():
     return mysql.connector.connect(
-        host=os.getenv("DB_HOST", "127.0.0.1"),
-        user=os.getenv("DB_USER", "root"),
-        password=os.getenv("DB_PASSWORD", ""),
-        database=os.getenv("DB_NAME", "main"),
-        port=int(os.getenv("DB_PORT", "3306")),
+        host="127.0.0.1",
+        user="root",
+        password="Sanchit@18",
+        database="main"
     )
-
-
-@app.get("/health")
-def health():
-    return {"status": "ok"}, 200
 
 @app.route('/')
 def home():
@@ -53,7 +45,7 @@ def update():
     conn.commit()
     cursor.close()
     conn.close()
-    return redirect(url_for("components", compid=component_id))
+    return redirect(f"http://localhost:5000/components?compid={component_id}")
 
 @app.route('/components', methods=['GET'])
 def components():
@@ -104,14 +96,9 @@ def add_component():
 
         # Generate QR code for the new component
         try:
-            public_base_url = os.getenv("PUBLIC_BASE_URL") or request.url_root.rstrip("/")
-            component_url = f"{public_base_url}/components?compid={component_id}"
-            qr_path = generate_qr_code(component_id, component_url=component_url)
-            print(f"QR code successfully generated at: {qr_path}")
+            generate_qr_code(component_id)
         except Exception as qr_error:
-            print(f"Error generating QR code for {component_id}: {qr_error}")
-            import traceback
-            traceback.print_exc()
+            print(f"Error generating QR code: {qr_error}")
             # Continue even if QR generation fails
 
         return redirect(f"/?success=Component {component_id} added successfully")
@@ -135,17 +122,7 @@ def record():
 
         if result:
             # Component exists, show QR code
-            public_base_url = os.getenv("PUBLIC_BASE_URL") or request.url_root.rstrip("/")
-            component_url = f"{public_base_url}/components?compid={component_id}"
-            try:
-                generate_qr_code(component_id, component_url=component_url)
-            except Exception:
-                pass
-            qr_image_base_url = os.getenv("QR_IMAGE_BASE_URL")
-            if qr_image_base_url:
-                qr_image_url = f"{qr_image_base_url.rstrip('/')}/{component_id}.png"
-            else:
-                qr_image_url = url_for('static', filename=f"qr_codes/{component_id}.png")
+            qr_image_url = f"/static/qr_codes/{component_id}.png"
             return render_template('home.html', compid=component_id, exists=True, qr_image_url=qr_image_url)
         else:
             # Component doesn't exist, show error
@@ -155,4 +132,4 @@ def record():
     return render_template('home.html')
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")), debug=True)
+    app.run(debug=True)
