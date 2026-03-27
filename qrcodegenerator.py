@@ -42,8 +42,8 @@ def _upload_to_s3(file_path: str, bucket: str, key: str) -> None:
     )
 
     extra_args = {"ContentType": "image/png"}
-    if aws_config.QR_S3_PUBLIC_READ:
-        extra_args["ACL"] = "public-read"
+    # Note: public access is controlled via the S3 bucket policy,
+    # not per-object ACLs (ACLs are disabled on newer buckets).
 
     try:
         s3.upload_file(file_path, bucket, key, ExtraArgs=extra_args)
