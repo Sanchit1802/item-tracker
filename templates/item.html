@@ -4,15 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Continental</title>
+    {% if s3_static_url %}
+    <link rel="stylesheet" href="{{ s3_static_url }}/css/style.css" />
+    {% else %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    {% endif %}
   </head>
   <body>
     <div class="logo-container">
-      <img
-        class="logo"
-        src="{{ url_for('static', filename='images/logo.png') }}"
-        alt="Continental Logo"
-      />
+      {% if s3_static_url %}
+      <img class="logo" src="{{ s3_static_url }}/images/logo.png" alt="Continental Logo" />
+      {% else %}
+      <img class="logo" src="{{ url_for('static', filename='images/logo.png') }}" alt="Continental Logo" />
+      {% endif %}
       <div class="nav-links">
         <a id="ashow" onclick="showSection('show','ashow','Status of Component:{{compid}}')">Current Record</a>
         <a id="ahistory" onclick="showSection('history','ahistory','Movement History of Component ID:{{compid}}')">History</a>

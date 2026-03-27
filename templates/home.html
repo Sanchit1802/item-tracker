@@ -4,15 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Continental</title>
+    {% if s3_static_url %}
+    <link rel="stylesheet" href="{{ s3_static_url }}/css/style.css" />
+    {% else %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    {% endif %}
   </head>
   <body>
     <div class="header">
-      <img
-        class="logo"
-        src="{{ url_for('static', filename='images/logo.png') }}"
-        alt="Continental Logo"
-      />
+      {% if s3_static_url %}
+      <img class="logo" src="{{ s3_static_url }}/images/logo.png" alt="Continental Logo" />
+      {% else %}
+      <img class="logo" src="{{ url_for('static', filename='images/logo.png') }}" alt="Continental Logo" />
+      {% endif %}
       <h1 class="header-title">
         Component based tracking system
       </h1>
@@ -65,7 +69,7 @@
           src="{{ qr_image_url }}"
           alt="QR Code for {{ compid }}"
         />
-        <a class="view-btn" href="/components?compid={{ compid }}">
+          <a class="view-btn" href="{{ public_base_url }}/components?compid={{ compid }}">
           &#128279; View Component Page
         </a>
       </div>

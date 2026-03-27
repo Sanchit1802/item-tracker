@@ -18,5 +18,9 @@ Thumbs.db
 # Flask
 instance/
 
-# QR outputs (optional to keep; comment out if you want tracked)
-Main Project/static/qr_codes/
+# QR codes (served from S3, not locally)
+static/qr_codes/
+
+# IDE
+.vscode/
+.idea/

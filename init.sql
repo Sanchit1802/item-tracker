@@ -1,8 +1,9 @@
--- Initialize database schema (run once)
+-- Initialize database schema (run once on RDS)
 -- Safe to run multiple times: uses IF NOT EXISTS and idempotent seed inserts.
+-- NOTE: DB_NAME in .env should match the database name below.
 
-CREATE DATABASE IF NOT EXISTS Main;
-USE Main;
+CREATE DATABASE IF NOT EXISTS component_tracker;
+USE component_tracker;
 
 CREATE TABLE IF NOT EXISTS components (
     component_id INT PRIMARY KEY,
