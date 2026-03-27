@@ -1,14 +1,3 @@
-"""AWS configuration helpers.
-
-This project is deployed on AWS using:
-- EC2 for the Flask app
-- RDS MySQL for the database
-- S3 for storing QR code images and static assets (logo, CSS)
-
-The app primarily reads configuration directly from environment variables (see .env.example).
-This module centralizes those names/defaults for convenience.
-"""
-
 from __future__ import annotations
 
 import os
