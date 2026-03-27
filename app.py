@@ -1,15 +1,15 @@
+from dotenv import load_dotenv
+load_dotenv()  # Must run BEFORE importing aws_config (it reads env vars at import time)
+
 from flask import Flask, render_template, request, redirect
 import mysql.connector
 from mysql.connector import Error as MySQLError
 from datetime import datetime
 from qrcodegenerator import generate_qr_code
-from dotenv import load_dotenv
 import os
 import logging
 
 import aws_config
-
-load_dotenv()
 
 app = Flask(__name__)
 
