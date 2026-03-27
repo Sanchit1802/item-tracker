@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv()  # Must run BEFORE importing aws_config (it reads env vars at import time)
 
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 import mysql.connector
 from mysql.connector import Error as MySQLError
 from datetime import datetime
@@ -249,6 +249,21 @@ def record():
 
     # No component ID provided, just show the form
     return render_template('home.html', **_template_globals())
+
+
+@app.route('/all_components', methods=['GET'])
+def all_components():
+    try:
+        conn = connect()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT component_id, component_name FROM components ORDER BY component_id")
+        components = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return jsonify(components)
+    except (RuntimeError, MySQLError) as db_err:
+        logger.exception("Database query failed")
+        return jsonify({"error": str(db_err)}), 500
 
 
 if __name__ == '__main__':

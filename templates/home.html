@@ -23,6 +23,7 @@
       <div class="nav-links">
         <a id="search-link" onclick="showSection('search')">Search Component</a>
         <a id="add-link" onclick="showSection('add')">Add New Component</a>
+        <a id="view-all-link" onclick="showSection('view-all')">View All Components</a>
       </div>
     </div>
     <div class="subheader">
@@ -108,26 +109,120 @@
       </div>
     </div>
 
+    <!-- View All Components Section -->
+    <div id="view-all-section" class="floating-container" style="display: none; max-width: 800px; width: 90%;">
+      <div class="form-section" style="width: 100%;">
+        <h3>All Components</h3>
+        
+        <input type="text" id="component-filter" class="input-box" placeholder="Filter by ID or Name..." style="margin-bottom: 20px; max-width: 100%;" onkeyup="filterComponents()">
+
+        <div style="max-height: 400px; overflow-y: auto; text-align: left;">
+          <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+            <thead style="position: sticky; top: 0; background-color: var(--secondary-bg);">
+              <tr>
+                <th style="padding: 12px; border-bottom: 2px solid #ddd;">Component ID</th>
+                <th style="padding: 12px; border-bottom: 2px solid #ddd;">Name</th>
+                <th style="padding: 12px; border-bottom: 2px solid #ddd;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="components-table-body">
+              <tr>
+                <td colspan="3" style="text-align: center; padding: 20px;">Loading components...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <script>
       function showSection(section) {
         const searchSection = document.getElementById('search-section');
         const addSection = document.getElementById('add-section');
+        const viewAllSection = document.getElementById('view-all-section');
+        
         const searchLink = document.getElementById('search-link');
         const addLink = document.getElementById('add-link');
+        const viewAllLink = document.getElementById('view-all-link');
+        
         const pageTitle = document.getElementById('page-title');
+
+        // Reset all
+        searchSection.style.display = 'none';
+        addSection.style.display = 'none';
+        viewAllSection.style.display = 'none';
+        
+        searchLink.style.color = 'white';
+        addLink.style.color = 'white';
+        viewAllLink.style.color = 'white';
 
         if (section === 'search') {
           searchSection.style.display = 'flex';
-          addSection.style.display = 'none';
           searchLink.style.color = 'rgb(46, 200, 102)';
-          addLink.style.color = 'white';
           pageTitle.innerText = 'Search Component';
-        } else {
-          searchSection.style.display = 'none';
+        } else if (section === 'add') {
           addSection.style.display = 'flex';
-          searchLink.style.color = 'white';
           addLink.style.color = 'rgb(46, 200, 102)';
           pageTitle.innerText = 'Add New Component';
+        } else if (section === 'view-all') {
+          viewAllSection.style.display = 'flex';
+          viewAllLink.style.color = 'rgb(46, 200, 102)';
+          pageTitle.innerText = 'All Components';
+          loadAllComponents();
+        }
+      }
+
+      function loadAllComponents() {
+        const tbody = document.getElementById('components-table-body');
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px;">Loading...</td></tr>';
+        
+        fetch('/all_components')
+          .then(response => response.json())
+          .then(data => {
+            if (data.error) {
+              tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: red; padding: 20px;">Error: ${data.error}</td></tr>`;
+              return;
+            }
+            
+            if (data.length === 0) {
+              tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px;">No components found.</td></tr>';
+              return;
+            }
+
+            tbody.innerHTML = '';
+            data.forEach(comp => {
+              const tr = document.createElement('tr');
+              tr.className = 'component-row';
+              tr.style.borderBottom = '1px solid #ddd';
+              
+              tr.innerHTML = `
+                <td style="padding: 12px;" class="comp-id">${comp.component_id}</td>
+                <td style="padding: 12px;" class="comp-name">${comp.component_name}</td>
+                <td style="padding: 12px; text-align: center;">
+                  <a href="{{ public_base_url }}/components?compid=${comp.component_id}" style="color: rgb(46, 200, 102); text-decoration: none; font-weight: bold;">View</a>
+                </td>
+              `;
+              tbody.appendChild(tr);
+            });
+          })
+          .catch(err => {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; padding: 20px; color: red;">Failed to load data.</td></tr>`;
+          });
+      }
+
+      function filterComponents() {
+        const input = document.getElementById('component-filter').value.toLowerCase();
+        const rows = document.getElementsByClassName('component-row');
+        
+        for (let i = 0; i < rows.length; i++) {
+          const compId = rows[i].querySelector('.comp-id').innerText.toLowerCase();
+          const compName = rows[i].querySelector('.comp-name').innerText.toLowerCase();
+          
+          if (compId.includes(input) || compName.includes(input)) {
+            rows[i].style.display = '';
+          } else {
+            rows[i].style.display = 'none';
+          }
         }
       }
 
